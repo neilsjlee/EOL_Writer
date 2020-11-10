@@ -6,6 +6,8 @@ g_signal_handler = None
 g_logger_func = None
 g_last_multi_frame_signal_cb = 0
 l_part_number = [0,0,0,0,0,0,0,0,0,0]
+received_ask_seed = [0,0,0,0,0,0,0,0]
+calculated_ask_key = [0,0,0,0,0,0,0,0]
 
 def convert_signal(signal):
     converted_signal = list()
@@ -498,6 +500,60 @@ def response_io_record2_cb(connector, msg):
 def response_pointer_replacement_cb(connector, msg):
     print("POINTER_REPLACEMENT_REQUEST HAS BEEN ALLOWED")
 
+###!
+
+def request_ask_seed(base_signal, parameter):
+    global g_last_multi_frame_signal_cb
+    g_last_multi_frame_signal_cb = response_ask_seed_cb ###!
+    return convert_signal(base_signal['payload']), False
+
+def response_ask_seed_cb(base_signal, msg):
+    global g_last_multi_frame_signal_cb ###!
+    global received_ask_seed
+    if msg.data[0] == 0x21:
+        print("ASK SEED READ2: ", hex(msg.data[1]), " ", hex(msg.data[2]), " ", hex(msg.data[3]), " ", hex(msg.data[4]))
+        received_ask_seed[4] = hex(msg.data[1])
+        received_ask_seed[5] = hex(msg.data[2])
+        received_ask_seed[6] = hex(msg.data[3])
+        received_ask_seed[7] = hex(msg.data[4])
+        g_last_multi_frame_signal_cb = None
+        g_signal_handler.do_request("REQUEST_ASK_KEY", received_ask_seed, False)
+    else:
+        print("ASK SEED READ1: ", hex(msg.data[4]), " ",hex(msg.data[5]), " ", hex(msg.data[6]), " ", hex(msg.data[7]))
+        received_ask_seed[0] = hex(msg.data[4])
+        received_ask_seed[1] = hex(msg.data[5])
+        received_ask_seed[2] = hex(msg.data[6])
+        received_ask_seed[3] = hex(msg.data[7])
+
+        g_last_multi_frame_signal_cb = response_ask_seed_cb
+        g_signal_handler.do_request("REQUEST_MULTI_FRAME_READ", None, False)
+    return True
+
+def request_ask_key(base_signal, parameter):
+    global calculated_ask_key
+    signal = convert_signal(base_signal['payload'])
+    print("^^^ ASK SEED: ", parameter)
+
+    # DLL
+    calculated_ask_key = [1, 2, 3, 4, 5, 6, 7, 8]
+    print("^^^ ASK KEY:  ", calculated_ask_key)
+
+    for i in range(0, 4):
+        signal[i+4] = calculated_ask_key[i]
+    return signal, False
+
+def response_ask_key(connector, msg):
+    global calculated_ask_key
+    data = []
+    for i in range(4, 8):
+        data.append(calculated_ask_key[i])
+    print(data)
+    g_signal_handler.do_request("REQUEST_MULTI_FRAME_WRITE", data)
+    return True
+
+
+#######
+
 def message_handler(connector, last_requested_signal, msg):
     id = msg.arbitration_id
     global g_last_multi_frame_signal_cb
@@ -572,6 +628,8 @@ def message_handler(connector, last_requested_signal, msg):
             return response_pointer_replacement_cb(connector, msg)
 
     if byte0 == 0x10:
+        if byte1 == 0x0a and byte2 == 0x67 and byte3 == 0x11:
+            return response_ask_seed_cb(connector, msg) ###!
         if byte1 == 0x0b:
             return response_visteon_eol_read_cb(connector, msg)
         if byte1 == 0x0d and byte3 == 0xf1 and byte4 == 0x87:
@@ -597,6 +655,9 @@ def message_handler(connector, last_requested_signal, msg):
     if byte0 == 0x30:
         if last_requested_signal == "REQUEST_VISTEON_EOL_WRITE":
             return response_visteon_eol_write(connector, msg)
+        if last_requested_signal == "REQUEST_ASK_SEED":
+            print("*** need to send second ASK key msg")
+            return response_ask_key(connector, msg)
 
     if byte1 == 0x7F:
         if byte2 == 0x2E and byte3 == 0x33:

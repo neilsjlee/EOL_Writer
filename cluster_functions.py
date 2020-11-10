@@ -11,7 +11,7 @@ DIAG_FUN_ID = 0x7df
 REQUEST_EXTENDED_DIAG_MODE = [0x02, 0x10, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00]
 REQUEST_EXTENDED_SESSION = [0x02, 0x10, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00]
 REQUEST_GENERAL_SEED = [0x02, 0x27, 0x01, 0x00, 0x00, 0x00, 0x00]
-REQUEST_ASK = [0x02, 0x27, 0x11, 0x00, 0x00, 0x00, 0x00]
+REQUEST_ASK_SEED = [0x02, 0x27, 0x11, 0x00, 0x00, 0x00, 0x00]
 REQUEST_SEED = [0x02, 0x27, 0x61, 0x00, 0x00, 0x00, 0x00, 0x00]
 REQUEST_TEST_PRESENT = [0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00]
 
@@ -106,6 +106,11 @@ def request_general_seed(connector):
     connector.send_message(REQUEST_GENERAL_SEED, DIAG_REQ_ID)
     return Message(arbitration_id=DIAG_RES_ID, data=RESPONSE_GENERAL_SEED)
 
+'''
+def request_ask_seed(connector):
+    connector.send_message(REQUEST_ASK_SEED, DIAG_REQ_ID)
+    return Message(arbitration_id=DIAG_RES_ID, data=RESPONSE_GENERAL_SEED)
+'''
 def request_sw_version(connector):
     connector.send_message(REQUEST_SW_VERSION_READ, DIAG_REQ_ID)
     return Message(arbitration_id=DIAG_RES_ID, data=RESPONSE_GENERAL_SEED)
@@ -148,6 +153,24 @@ def request_key(connector, data, is_random=False):
         key_packet[6] = data[3] + 1
     connector.send_message(key_packet, DIAG_REQ_ID)
     return Message(arbitration_id=DIAG_RES_ID, data=RESPONSE_KEY)
+
+'''
+def request_ask_key(connector, data, is_random=False):
+    key_packet = REQUEST_KEY
+    if not is_random:
+        key_packet[3] = data[3] ^ 0xFF
+        key_packet[4] = data[4] ^ 0xFF
+        key_packet[5] = data[5] ^ 0xFF
+        key_packet[6] = data[6] ^ 0xFF
+        key_packet[6] = key_packet[6] + 0x0D
+    else:
+        key_packet[3] = data[3] + 1
+        key_packet[4] = data[3] + 1
+        key_packet[5] = data[3] + 1
+        key_packet[6] = data[3] + 1
+    connector.send_message(key_packet, DIAG_REQ_ID)
+    return Message(arbitration_id=DIAG_RES_ID, data=RESPONSE_KEY)
+'''
 
 def request_key_visteon(connector, data, is_random=False):
     key_packet = REQUEST_KEY_VISTEON

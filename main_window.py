@@ -73,22 +73,40 @@ def eol_length_cb():
         customer_eol_byte4_txt.configure(state="normal")
 
 def btn_eol_write_cb():
-    result = signal_handler.do_request("REQUEST_GENERAL_SEED", None)
+    if security_access_setting.get() == "general_seedkey":
+        result = signal_handler.do_request("REQUEST_GENERAL_SEED", None)
 
-    if result:
-        time.sleep(0.2)
-        byte1 = int(eol_byte_1.get(), 16)
-        byte2 = int(eol_byte_2.get(), 16)
-        param = [byte1, byte2]
+        if result:
+            time.sleep(0.2)
+            byte1 = int(eol_byte_1.get(), 16)
+            byte2 = int(eol_byte_2.get(), 16)
+            param = [byte1, byte2]
 
-        if eol_length.get() == 4:
-            byte3 = int(eol_byte_3.get(), 16)
-            byte4 = int(eol_byte_4.get(), 16)
-            param.append(byte3)
-            param.append(byte4)
-        signal_handler.do_request("REQUEST_EOL_WRITE", param)
-    else:
-        print("Request EOL Write Failure")
+            if eol_length.get() == 4:
+                byte3 = int(eol_byte_3.get(), 16)
+                byte4 = int(eol_byte_4.get(), 16)
+                param.append(byte3)
+                param.append(byte4)
+            signal_handler.do_request("REQUEST_EOL_WRITE", param)
+        else:
+            print("Request EOL Write Failure")
+    elif security_access_setting.get() == "advanced_seedkey":
+        result = signal_handler.do_request("REQUEST_ASK_SEED", None)
+
+        if result:
+            time.sleep(0.2)
+            byte1 = int(eol_byte_1.get(), 16)
+            byte2 = int(eol_byte_2.get(), 16)
+            param = [byte1, byte2]
+
+            if eol_length.get() == 4:
+                byte3 = int(eol_byte_3.get(), 16)
+                byte4 = int(eol_byte_4.get(), 16)
+                param.append(byte3)
+                param.append(byte4)
+            signal_handler.do_request("REQUEST_EOL_WRITE", param)
+        else:
+            print("Request EOL Write Failure")
 
 def btn_eol_read_cb():
     result = signal_handler.do_request("REQUEST_EOL_READ", None)
@@ -274,6 +292,14 @@ test_input = StringVar()
 ui_param['test_input'] = test_input
 
 
+###!
+security_access_setting = StringVar()
+security_access_setting.set("general_seedkey")
+ask_client_dll = StringVar(main_window)
+ask_client_dll_choices = {'SU2', 'SP2'}
+# ask_client_dll.set('SU2')
+
+
 main_window.title("Visteon CAN Diagnostics Tool")
 main_window.geometry("850x300")
 
@@ -291,18 +317,18 @@ setting_frame = Frame(main_window)
 status_frame = Frame(main_window)
 left_frame = Frame(main_window)
 contents_frame = Frame(main_window)
-setting_frame.pack(side=LEFT, fill=Y)
+setting_frame.pack(side=TOP, fill=Y, anchor="w")
 left_frame.pack(side=LEFT, fill=Y)
 contents_frame.pack(side=LEFT, fill=Y)
 status_frame.pack(side=LEFT, fill=Y, anchor="ne")
 
 # Setting Frame
-setting_label_frame = Frame(setting_frame)
-setting_frame.pack(side=LEFT, anchor="nw")
+setting_label = Label(setting_frame, text="Security Settings: ")
+setting_label.pack(side=LEFT, anchor="w")
 
-setting_label = Label(setting_label_frame, text="Settings: ")
-setting_label.pack(side=LEFT)
-
+Radiobutton(setting_frame, text="4 Byte Seedkey", value="general_seedkey", variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
+Radiobutton(setting_frame, text="8 Byte Seedkey", value="advanced_seedkey", variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
+OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="nw")
 
 # Internal SW Info
 version_label_frame = Frame(status_frame)
@@ -382,22 +408,6 @@ refresh_btn.pack(side=TOP)
 # MODE Button
 mode_frame = Frame(contents_frame)
 mode_frame.pack(side=TOP, anchor="w")
-
-setting_label = Label(left_frame, text="Settings: ")
-setting_label.pack(side=TOP, anchor="w", pady=2)
-
-# ask_type_button = Button(mode_frame, text="ASK", width=20, command= lambda: btn_eol_mode_on_cb(DEFAULT_SESSION))
-# ask_type_button.pack(side=TOP, anchor="nw")
-security_access_setting = IntVar()
-tkvar = StringVar(main_window)
-choices = {'SU2', 'SP2'}
-tkvar.set('SU2')
-
-Radiobutton(mode_frame, text="4 Byte Seedkey", value=0, variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
-Radiobutton(mode_frame, text="8 Byte Seedkey", value=1, variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
-OptionMenu(mode_frame, tkvar, *choices).pack(side=TOP, anchor="nw")
-
-#
 
 eol_btn_label = Label(left_frame, text="Mode: ")
 eol_btn_label.pack(side=TOP, anchor="w", pady=2)

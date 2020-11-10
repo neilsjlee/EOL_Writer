@@ -98,6 +98,18 @@
             "expected_response" : "RESPONSE_GENERAL_SEED"
         },
         {
+            "name" : "REQUEST_ASK_SEED",
+            "type" : "REQUEST",
+            "target" : "CCAN",
+            "payload" : ["0x02", "0x27", "0x11", "0x00", "0x00", "0x00", "0x00", "0x00"],
+            "placeholder_index" : null,
+            "description": "Request general seed to Cluster",
+            "request_function" : "request_ask_seed",
+            "callback_received" : "ask_seed_received_cb",
+            "callback_transmitted" : "general_seed_transmitted_cb",
+            "expected_response" : "RESPONSE_GENERAL_SEED"
+        },
+        {
             "name" : "REQUEST_VISTEON_SEED",
             "type" : "REQUEST",
             "target" : "CCAN",
@@ -117,6 +129,18 @@
             "placeholder_index" : null,
             "description": "Request Key to Cluster",
             "request_function" : "request_key",
+            "callback_received" : "key_received_cb",
+            "callback_transmitted" : "key_transmitted_cb",
+            "expected_response" : "RESPONSE_KEY"
+        },
+        {
+            "name" : "REQUEST_ASK_KEY",
+            "type" : "REQUEST",
+            "target" : "CCAN",
+            "payload" : ["0x10", "0x0A", "0x27", "0x12", "0x00", "0x00", "0x00", "0x00"],
+            "placeholder_index" : null,
+            "description": "Request Key to Cluster",
+            "request_function" : "request_ask_key",
             "callback_received" : "key_received_cb",
             "callback_transmitted" : "key_transmitted_cb",
             "expected_response" : "RESPONSE_KEY"
