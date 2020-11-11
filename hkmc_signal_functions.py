@@ -32,7 +32,7 @@ class HKMCSignalHandler:
             setattr(self.plugin, 'g_signal_handler', self)
             setattr(self.plugin, 'g_logger_func', log_function)
             setattr(self.plugin, 'g_last_multi_frame_signal_cb', None)
-            self.create_connectors()
+            self.loaded_ask_dll = ""
 
     def start(self):
         for c in self.connectors:
@@ -128,3 +128,10 @@ class HKMCSignalHandler:
     def on_received(self, id, packet):
         # Fetch signals
         return self.message_handler(self.connectors[id], self.last_requested_signal, packet)
+
+    def load_ask_dll(self, loaded):
+        self.loaded_ask_dll = loaded
+
+    def calculate_ask_key(self, received_ask_seed):
+        result = [5,5,5,5,5,5,5,5]
+        return result

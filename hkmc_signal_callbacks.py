@@ -531,15 +531,20 @@ def response_ask_seed_cb(base_signal, msg):
 
 def request_ask_key(base_signal, parameter):
     global calculated_ask_key
+    global received_ask_seed
     signal = convert_signal(base_signal['payload'])
     print("^^^ ASK SEED: ", parameter)
 
     # DLL
+    calc = g_signal_handler.calculate_ask_key(received_ask_seed)
+    print("^^^^^^^^^^^^^^^^^^", calc)
+
     calculated_ask_key = [1, 2, 3, 4, 5, 6, 7, 8]
     print("^^^ ASK KEY:  ", calculated_ask_key)
 
     for i in range(0, 4):
         signal[i+4] = calculated_ask_key[i]
+
     return signal, False
 
 def response_ask_key(connector, msg):

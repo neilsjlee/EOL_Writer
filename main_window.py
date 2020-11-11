@@ -4,6 +4,7 @@ from cluster_functions import *
 from hkmc_signal_functions import HKMCSignalHandler
 from threading import Thread
 import time
+import ctypes
 
 DEFAULT_SESSION = 0x81
 EXTENDED_DIAG_SESSION = 0x03
@@ -226,6 +227,9 @@ def close_window():
     print("TRY to quit main window")
     main_window.quit()
 
+def load_ask_dll():
+    signal_handler.load_ask_dll(ask_dll)
+
 
 # Create the Main Window
 ignore_status_update = False
@@ -292,14 +296,6 @@ test_input = StringVar()
 ui_param['test_input'] = test_input
 
 
-###!
-security_access_setting = StringVar()
-security_access_setting.set("general_seedkey")
-ask_client_dll = StringVar(main_window)
-ask_client_dll_choices = {'SU2', 'SP2'}
-# ask_client_dll.set('SU2')
-
-
 main_window.title("Visteon CAN Diagnostics Tool")
 main_window.geometry("850x300")
 
@@ -311,6 +307,14 @@ tester_present_thread.daemon = True
 status_thread = Thread(target=send_io_record1)
 status_thread.daemon = True
 status_thread.start()
+
+###!
+security_access_setting = StringVar()
+security_access_setting.set("general_seedkey")
+ask_client_dll = StringVar(main_window)
+ask_dll = ctypes.cdll.LoadLibrary("C:/Users/slee113/PycharmProjects/untitled/src/lib/ASK/SU2/HKMC_AdvancedSeedKey_Win32.dll")
+ask_client_dll_choices = {'SU2', 'SP2'}
+# ask_client_dll.set('SU2')
 
 # Main frame
 setting_frame = Frame(main_window)
