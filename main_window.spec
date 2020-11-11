@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main_window.py'],
-             pathex=['E:\\Workspace\\tools\\EOL_Writer'],
+             pathex=['C:\\Users\\slee113\\PycharmProjects\\EOL_Writer'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -1,9 +1,15 @@
 from tkinter import *
+from tkinter import messagebox
 from can_connector import CANConnection
 from cluster_functions import *
 from hkmc_signal_functions import HKMCSignalHandler
 from threading import Thread
 import time
+import ctypes
+import os
+import sys
+
+CURRENT_VERSION = "1.0.0.0" # Modified date: 11/11/2020
 
 DEFAULT_SESSION = 0x81
 EXTENDED_DIAG_SESSION = 0x03
@@ -14,7 +20,7 @@ cluster_session_state = 0
 
 def set_session(session):
     result = False
-    #if ui_param['session'] != session:
+    # if ui_param['session'] != session:
     if session == DEFAULT_SESSION:
         result = signal_handler.do_request("REQUEST_DEFAULT_SESSION", None)
     else:
@@ -32,13 +38,15 @@ def set_session(session):
 
         if result:
             time.sleep(0.2)
-            #result = signal_handler.do_request("REQUEST_VISTEON_SEED", None)
+            # result = signal_handler.do_request("REQUEST_VISTEON_SEED", None)
     return result
+
 
 def send_tester_present(handler):
     while True:
         handler.do_request("REQUEST_TESTER_PRESENT")
         time.sleep(3)
+
 
 def send_io_record1():
     while True:
@@ -48,7 +56,6 @@ def send_io_record1():
                 time.sleep(1)
         except:
             print("Error occured while sending I/O Record ")
-
 
 
 def btn_eol_mode_on_cb(mode):
@@ -64,6 +71,7 @@ def btn_eol_mode_on_cb(mode):
     if tester_present_thread.is_alive() == False:
         tester_present_thread.start()
 
+
 def eol_length_cb():
     if eol_length.get() == 2:
         customer_eol_byte3_txt.configure(state="disabled")
@@ -71,6 +79,7 @@ def eol_length_cb():
     else:
         customer_eol_byte3_txt.configure(state="normal")
         customer_eol_byte4_txt.configure(state="normal")
+
 
 def btn_eol_write_cb():
     if security_access_setting.get() == "general_seedkey":
@@ -108,11 +117,14 @@ def btn_eol_write_cb():
         else:
             print("Request EOL Write Failure")
 
+
 def btn_eol_read_cb():
     result = signal_handler.do_request("REQUEST_EOL_READ", None)
 
+
 def btn_visteon_eol_read_cb():
     result = signal_handler.do_request("REQUEST_VISTEON_EOL_READ", None)
+
 
 def btn_visteon_eol_write_cb():
     signal_handler.do_request("REQUEST_VISTEON_SEED", None)
@@ -124,16 +136,19 @@ def btn_visteon_eol_write_cb():
     param.append(int(visteon_eol_byte_4.get(), 16))
     signal_handler.do_request("REQUEST_VISTEON_EOL_WRITE", param)
 
+
 def btn_telltale_cb():
-    #request_extended_diag_mode(connection2)
+    # request_extended_diag_mode(connection2)
     time.sleep(0.4)
-    #request_telltale_all_on(connection2)
+    # request_telltale_all_on(connection2)
+
 
 def btn_sw_reset_cb():
     set_session(EXTENDED_DIAG_SESSION)
     signal_handler.do_request("REQUEST_SW_RESET", None)
     time.sleep(3)
     on_start()
+
 
 def btn_odo_reset_cb():
     set_session(EOL_SESSION)
@@ -143,6 +158,7 @@ def btn_odo_reset_cb():
     signal_handler.do_request("REQUEST_ODO_RESET", None)
     print("odo")
 
+
 def btn_chime_test_cb(chime_index):
     signal_handler.do_request("REQUEST_VISTEON_SEED", None)
     time.sleep(0.2)
@@ -150,26 +166,27 @@ def btn_chime_test_cb(chime_index):
         signal_handler.do_request("REQUEST_CHIME_TEST", None)
     else:
         signal_handler.do_request("REQUEST_CHIME_RELEASE", None)
- 
+
 
 def btn_odo_write_cb():
-    #ret_msg = request_extended_session(connection)
-    #time.sleep(0.2)
-    #ret_msg = request_general_seed(connection)
-    #time.sleep(0.4)
+    # ret_msg = request_extended_session(connection)
+    # time.sleep(0.2)
+    # ret_msg = request_general_seed(connection)
+    # time.sleep(0.4)
 
-    #distance = int(odometer_txt.get(), 10)
-    #request_write_odometer(connection, distance)
+    # distance = int(odometer_txt.get(), 10)
+    # request_write_odometer(connection, distance)
 
     print("odo")
 
+
 def btn_pid_refresh_cb():
-    #set_session(EXTENDED_DIAG_SESSION)
-    #set_session(EOL_SESSION)
-    #set_session(DEFAULT_SESSION)
-    #time.sleep(0.2)
-    #set_session(EXTENDED_DIAG_SESSION)
-    #time.sleep(0.2)
+    # set_session(EXTENDED_DIAG_SESSION)
+    # set_session(EOL_SESSION)
+    # set_session(DEFAULT_SESSION)
+    # time.sleep(0.2)
+    # set_session(EXTENDED_DIAG_SESSION)
+    # time.sleep(0.2)
     signal_handler.do_request("REQUEST_VISTEON_SEED", None)
     time.sleep(0.2)
     signal_handler.do_request("REQUEST_SUPPORTED_PID", None)
@@ -178,29 +195,33 @@ def btn_pid_refresh_cb():
     time.sleep(0.2)
     signal_handler.do_request("REQUEST_IO_RECORD2", None)
 
+
 def btn_telltale_all_on_cb():
-    #set_session(DEFAULT_SESSION)
-    #time.sleep(0.2)
-    #set_session(EXTENDED_DIAG_SESSION)
-    #time.sleep(0.2)
-    #set_session(EOL_SESSION)
-    #time.sleep(0.5)
+    # set_session(DEFAULT_SESSION)
+    # time.sleep(0.2)
+    # set_session(EXTENDED_DIAG_SESSION)
+    # time.sleep(0.2)
+    # set_session(EOL_SESSION)
+    # time.sleep(0.5)
     signal_handler.do_request("REQUEST_TELLTALE_ALL_ON")
 
+
 def btn_telltale_all_off_cb():
-    #set_session(EOL_SESSION)
-    #time.sleep(0.5)
+    # set_session(EOL_SESSION)
+    # time.sleep(0.5)
     signal_handler.do_request("REQUEST_TELLTALE_ALL_OFF")
 
 
 def btn_config_write_cb():
     print("write config")
 
+
 def btn_config_read_cb():
     result = signal_handler.do_request("REQUEST_VISTEON_SEED", None)
     time.sleep(0.2)
     print("START To READ CONI")
     signal_handler.do_request("REQUEST_CONFIG_READ", None)
+
 
 def on_start():
     ignore_status_update = True
@@ -218,13 +239,37 @@ def on_start():
     time.sleep(0.2)
     signal_handler.do_request("REQUEST_PART_NUMBER", None)
     ignore_status_update = False
-    #request_check_did_b000(connection)
-    #request_read_odometer_km(connection)
+    # request_check_did_b000(connection)
+    # request_read_odometer_km(connection)
+
 
 def close_window():
     signal_handler.stop()
     print("TRY to quit main window")
     main_window.quit()
+
+
+def load_ask_dll():
+    signal_handler.load_ask_dll(ask_dll)
+
+
+def search_ask_dlls():
+    dll_paths = []
+    for (path, dir, files) in os.walk('./ASK_DLL/'):
+        for filename in files:
+            ext = os.path.splitext(filename)[-1]
+            if ext == '.dll':
+                temp_str = path + "/" + filename
+                dll_paths.append(temp_str)
+    if len(dll_paths) == 0:
+        dll_paths = [""]
+    return dll_paths
+
+
+def callback_dll_on_change(*args):
+    global ask_dll
+    ask_dll = ctypes.cdll.LoadLibrary(ask_client_dll.get())
+    load_ask_dll()
 
 
 # Create the Main Window
@@ -291,33 +336,50 @@ ui_param['odo_km'] = odo_km
 test_input = StringVar()
 ui_param['test_input'] = test_input
 
-
-###!
-security_access_setting = StringVar()
-security_access_setting.set("general_seedkey")
-ask_client_dll = StringVar(main_window)
-ask_client_dll_choices = {'SU2', 'SP2'}
-# ask_client_dll.set('SU2')
-
-
 main_window.title("Visteon CAN Diagnostics Tool")
 main_window.geometry("850x300")
 
-signal_handler = HKMCSignalHandler(".\signals.json", ui_param, print)
+signal_handler = HKMCSignalHandler("./signals.json", ui_param, print)
 
-tester_present_thread = Thread(target=send_tester_present,args=(signal_handler,) )
+tester_present_thread = Thread(target=send_tester_present, args=(signal_handler,))
 tester_present_thread.daemon = True
 
 status_thread = Thread(target=send_io_record1)
 status_thread.daemon = True
 status_thread.start()
 
+###!
+security_access_setting = StringVar()
+security_access_setting.set("general_seedkey")
+
+ask_client_dll_choices = search_ask_dlls()
+
+ask_client_dll = StringVar(main_window)
+ask_client_dll.set("-")
+ask_client_dll.trace("w", callback_dll_on_change)
+try:
+    default_setting_file = open("./ASK_DLL/default_setting.txt", "r")
+    default_setting = default_setting_file.read()
+    print("Default Setting: ", default_setting)
+    for item in ask_client_dll_choices:
+        if item == default_setting:
+            ask_client_dll.set(item)
+        else:
+            ask_client_dll.set(ask_client_dll_choices[0])
+except IOError:
+    print("default_setting.txt file does not exist.")
+    # ask_client_dll.set(ask_client_dll_choices[0])
+
+ask_dll = None
+
 # Main frame
 setting_frame = Frame(main_window)
 status_frame = Frame(main_window)
 left_frame = Frame(main_window)
 contents_frame = Frame(main_window)
+version_frame = Frame(main_window)
 setting_frame.pack(side=TOP, fill=Y, anchor="w")
+version_frame.pack(side=BOTTOM, fill=Y, anchor="e")
 left_frame.pack(side=LEFT, fill=Y)
 contents_frame.pack(side=LEFT, fill=Y)
 status_frame.pack(side=LEFT, fill=Y, anchor="ne")
@@ -326,9 +388,15 @@ status_frame.pack(side=LEFT, fill=Y, anchor="ne")
 setting_label = Label(setting_frame, text="Security Settings: ")
 setting_label.pack(side=LEFT, anchor="w")
 
-Radiobutton(setting_frame, text="4 Byte Seedkey", value="general_seedkey", variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
-Radiobutton(setting_frame, text="8 Byte Seedkey", value="advanced_seedkey", variable=security_access_setting, width=20).pack(side=LEFT, anchor="nw")
+Radiobutton(setting_frame, text="4 Byte Seedkey", value="general_seedkey", variable=security_access_setting,
+            width=20).pack(side=LEFT, anchor="nw")
+Radiobutton(setting_frame, text="8 Byte Seedkey", value="advanced_seedkey", variable=security_access_setting,
+            width=20).pack(side=LEFT, anchor="nw")
 OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="nw")
+
+# Version Frame
+version_label = Label(version_frame, text="Version: " + CURRENT_VERSION)
+version_label.pack(side=LEFT, anchor="e")
 
 # Internal SW Info
 version_label_frame = Frame(status_frame)
@@ -402,8 +470,8 @@ odo_km_txt.pack(side=TOP, pady=1)
 refresh_btn = Button(version_info_frame, text="REFRESH", width=20, command=on_start)
 refresh_btn.pack(side=TOP)
 
-#request_btn = Button(version_info_frame, text="REQUEST", width=20, command=lambda: signal_handler.do_request("REQUEST_IO_RECORD1"))
-#request_btn.pack(side=TOP)
+# request_btn = Button(version_info_frame, text="REQUEST", width=20, command=lambda: signal_handler.do_request("REQUEST_IO_RECORD1"))
+# request_btn.pack(side=TOP)
 
 # MODE Button
 mode_frame = Frame(contents_frame)
@@ -412,10 +480,12 @@ mode_frame.pack(side=TOP, anchor="w")
 eol_btn_label = Label(left_frame, text="Mode: ")
 eol_btn_label.pack(side=TOP, anchor="w", pady=2)
 
-default_mode_on_btn = Button(mode_frame, text="DEFAULT MODE", width=20, command= lambda: btn_eol_mode_on_cb(DEFAULT_SESSION))
+default_mode_on_btn = Button(mode_frame, text="DEFAULT MODE", width=20,
+                             command=lambda: btn_eol_mode_on_cb(DEFAULT_SESSION))
 default_mode_on_btn.pack(side=LEFT, anchor="nw")
 
-diag_mode_on_btn = Button(mode_frame, text="DIAG MODE", width=20, command=lambda: btn_eol_mode_on_cb(EXTENDED_DIAG_SESSION))
+diag_mode_on_btn = Button(mode_frame, text="DIAG MODE", width=20,
+                          command=lambda: btn_eol_mode_on_cb(EXTENDED_DIAG_SESSION))
 diag_mode_on_btn.pack(side=LEFT, anchor="w")
 
 eol_mode_on_btn = Button(mode_frame, text="EOL MODE", width=20, command=lambda: btn_eol_mode_on_cb(EOL_SESSION))
@@ -436,7 +506,6 @@ customer_eol_byte3_txt.pack(side=LEFT, anchor="e", padx=5)
 customer_eol_byte4_txt = Entry(eol_frame, width=4, textvariable=eol_byte_4)
 customer_eol_byte4_txt.pack(side=LEFT, anchor="e", padx=5)
 
-
 customer_eol_btn = Button(eol_frame, text="WRITE", width=10, command=btn_eol_write_cb)
 customer_eol_btn.pack(side=LEFT, anchor="e")
 customer_eol_read_btn = Button(eol_frame, text="READ", width=10, command=btn_eol_read_cb)
@@ -454,24 +523,24 @@ visteon_eol_frame = Frame(contents_frame)
 visteon_eol_frame.pack(side=TOP, anchor="w")
 
 label = Label(left_frame, text="Visteon EOL : ")
-label.pack( side=TOP, anchor="w", pady=2)
+label.pack(side=TOP, anchor="w", pady=2)
 
 visteon_eol_byte1_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_1)
-visteon_eol_byte1_txt.pack(side=LEFT, anchor="e",  padx=5)
+visteon_eol_byte1_txt.pack(side=LEFT, anchor="e", padx=5)
 
 visteon_eol_byte2_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_2)
 visteon_eol_byte2_txt.pack(side=LEFT, anchor="e", padx=5)
 visteon_eol_byte3_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_3)
-visteon_eol_byte3_txt.pack(side=LEFT, anchor="e",  padx=5)
+visteon_eol_byte3_txt.pack(side=LEFT, anchor="e", padx=5)
 
 visteon_eol_byte4_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_4)
-visteon_eol_byte4_txt.pack(side=LEFT, anchor="e",  padx=5)
+visteon_eol_byte4_txt.pack(side=LEFT, anchor="e", padx=5)
 
 visteon_eol_byte5_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_5)
 visteon_eol_byte5_txt.pack(side=LEFT, anchor="e", padx=5)
 
 visteon_eol_byte6_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_6)
-visteon_eol_byte6_txt.pack(side=LEFT, anchor="e",  padx=5)
+visteon_eol_byte6_txt.pack(side=LEFT, anchor="e", padx=5)
 
 visteon_eol_byte7_txt = Entry(visteon_eol_frame, width=4, textvariable=visteon_eol_byte_7)
 visteon_eol_byte7_txt.pack(side=LEFT, anchor="e", padx=5)
@@ -488,27 +557,19 @@ visteon_eol_read_btn.pack(side=LEFT, anchor="e")
 # I/O Monitoring
 '''io_mon_frame = Frame(contents_frame)
 io_mon_frame.pack(side=TOP, anchor="w")
-
 label = Label(left_frame, text="SUPPORTED PID : ")
 label.pack(side=TOP, anchor="w", pady=2)
-
 pid_txt = Entry(io_mon_frame, width=10, textvariable=pid)
 pid_txt.pack(side=LEFT, anchor="e",  padx=5)
-
 pid_write_read_btn = Button(io_mon_frame, text="REFRESH", width=10, command=btn_pid_refresh_cb)
 pid_write_read_btn.pack(side=LEFT)
-
-
 # ODOMETER
 odo_frame = Frame(contents_frame)
 odo_frame.pack(side=TOP, anchor="w")
-
 label = Label(left_frame, text="ODOMETER : ")
 label.pack(side=TOP, anchor="w", pady=5)
-
 odometer_txt = Entry(odo_frame, width=10, textvariable=odometer)
 odometer_txt.pack(side=LEFT, anchor="e",  padx=5)
-
 odo_write_btn = Button(odo_frame, text="WRITE", width=10, command=btn_odo_write_cb)
 odo_write_btn.pack(side=LEFT)
 odo_write_read_btn = Button(odo_frame, text="READ", width=10, command=btn_odo_write_cb)
@@ -523,9 +584,9 @@ func_frame.pack(side=TOP, anchor="w")
 sw_reset_btn = Button(func_frame, text="S/W RESET", width=10, command=btn_sw_reset_cb)
 sw_reset_btn.pack(side=LEFT)
 
-sw_reset_btn = Button(func_frame, text="H/W RESET", width=10, command=lambda: signal_handler.do_request("REQUEST_HW_RESET"))
+sw_reset_btn = Button(func_frame, text="H/W RESET", width=10,
+                      command=lambda: signal_handler.do_request("REQUEST_HW_RESET"))
 sw_reset_btn.pack(side=LEFT)
-
 
 tt_all_on_btn = Button(func_frame, text="TT_ALL_ON", width=10, command=btn_telltale_all_on_cb)
 tt_all_on_btn.pack(side=LEFT)
@@ -533,9 +594,9 @@ tt_all_on_btn.pack(side=LEFT)
 tt_all_off_btn = Button(func_frame, text="TT_ALL_OFF", width=10, command=btn_telltale_all_off_cb)
 tt_all_off_btn.pack(side=LEFT)
 
-gauge_sweep_btn = Button(func_frame, text="GAUGE SWEEP", width=15, command=lambda: signal_handler.do_request("REQUEST_GAUGE_SWEEP"))
+gauge_sweep_btn = Button(func_frame, text="GAUGE SWEEP", width=15,
+                         command=lambda: signal_handler.do_request("REQUEST_GAUGE_SWEEP"))
 gauge_sweep_btn.pack(side=LEFT)
-
 
 label = Label(left_frame, text=" CHIME : ")
 label.pack(side=TOP, anchor="w")
@@ -547,35 +608,21 @@ chime_test_btn.pack(side=LEFT)
 chime_test_btn = Button(chime_frame, text="CHIME_OFF", width=20, command=lambda: btn_chime_test_cb(0))
 chime_test_btn.pack(side=LEFT)
 
-
-
-
-
 '''
 config_txt = Entry(contents_frame, width=10, textvariable=config)
 config_txt.pack(padx=5)
-
 config_write_btn = Button(contents_frame, text="WRITE", width=10, command=btn_config_write_cb)
 config_write_btn.pack()
-
 config_read_btn = Button(contents_frame, text="READ", width=10, command=btn_config_read_cb)
 config_read_btn.pack()
-
 telltale_btn = Button(contents_frame, text="TELLTALE ALL ON", width=20, command=btn_telltale_cb)
 telltale_btn.pack()
-
-
 odometer_reset_btn = Button(contents_frame, text="ODOMETER RESET", width=20, command=btn_odo_reset_cb)
 odometer_reset_btn.pack()
-
 chime_test_btn = Button(contents_frame, text="CHIME_TEST", width=20, command=btn_chime_test_cb)
 chime_test_btn.pack()
-
 customer_eol_byte1_txt = Entry(contents_frame, width=4, textvariable=test_input)
 customer_eol_byte1_txt.pack(  padx=5)'''
-
-
-
 
 main_window.after(100, on_start)
 main_window.protocol("WM_DELETE_WINDOW", close_window)

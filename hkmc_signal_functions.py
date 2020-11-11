@@ -6,6 +6,7 @@ import importlib
 import importlib.util
 import threading
 import time
+import ctypes
 
 REQUEST_FUNCTION    = 0
 TRANSMIT_CALLBACK   = 1
@@ -33,6 +34,7 @@ class HKMCSignalHandler:
             setattr(self.plugin, 'g_logger_func', log_function)
             setattr(self.plugin, 'g_last_multi_frame_signal_cb', None)
             self.create_connectors()
+            self.loaded_ask_dll = ""
 
     def start(self):
         for c in self.connectors:
@@ -128,3 +130,31 @@ class HKMCSignalHandler:
     def on_received(self, id, packet):
         # Fetch signals
         return self.message_handler(self.connectors[id], self.last_requested_signal, packet)
+
+    def load_ask_dll(self, loaded):
+        self.loaded_ask_dll = loaded
+
+    def calculate_ask_key(self, received_ask_seed):
+        py_arr = [0, 0, 0, 0, 0, 0, 0, 0]
+        i = 0
+        while (i < 8):
+            py_arr[i] = int(received_ask_seed[i], 16)
+            i = i + 1
+        c_arr = (ctypes.c_byte * len(py_arr))(*py_arr)
+
+        py_arr2 = [0, 0, 0, 0, 0, 0, 0, 0]
+        result_c = (ctypes.c_byte * len(py_arr2))(*py_arr2)
+
+        self.loaded_ask_dll.ASK_KeyGenerate(c_arr, result_c)
+
+        result = []
+        i = 0
+        while (i < 8):
+            temp = result_c[i]
+            if temp < 0:
+                temp = temp + 256
+            print(temp)
+            result.append(temp)
+            i = i + 1
+
+        return result
