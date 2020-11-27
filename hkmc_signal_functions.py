@@ -77,7 +77,7 @@ class HKMCSignalHandler:
         if function_type == REQUEST_FUNCTION:
             name = self.scheme['can_signals'][signal_index]['request_function']
         if function_type == RECEIVED_CALLBACK:
-            name = self.scheme['can_signals'][signal_index]['callback_recevied']
+            name = self.scheme['can_signals'][signal_index]['callback_received']
         if function_type == TRANSMIT_CALLBACK:
             name = self.scheme['can_signals'][signal_index]['callback_transmitted']
         if name == None:

@@ -610,8 +610,8 @@ def response_ask_seed_cb(base_signal, msg):
         received_ask_seed[5] = hex(msg.data[2])
         received_ask_seed[6] = hex(msg.data[3])
         received_ask_seed[7] = hex(msg.data[4])
-        g_last_multi_frame_signal_cb = None
         g_signal_handler.do_request("REQUEST_ASK_KEY", received_ask_seed, False)
+        g_last_multi_frame_signal_cb = None
     else:
         print("ASK SEED READ1: ", hex(msg.data[4]), " ", hex(msg.data[5]), " ", hex(msg.data[6]), " ", hex(msg.data[7]))
         received_ask_seed[0] = hex(msg.data[4])

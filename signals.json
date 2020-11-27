@@ -106,8 +106,8 @@
             "description": "Request general seed to Cluster",
             "request_function" : "request_ask_seed",
             "callback_received" : "ask_seed_received_cb",
-            "callback_transmitted" : "general_seed_transmitted_cb",
-            "expected_response" : "RESPONSE_GENERAL_SEED"
+            "callback_transmitted" : "ask_seed_transmitted_cb",
+            "expected_response" : "RESPONSE_ASK_SEED"
         },
         {
             "name" : "REQUEST_VISTEON_SEED",

@@ -9,7 +9,7 @@ import ctypes
 import os
 import sys
 
-CURRENT_VERSION = "1.0.0.0" # Modified date: 11/11/2020
+CURRENT_VERSION = "1.0.0.1" # Modified date: 11/27/2020
 
 DEFAULT_SESSION = 0x81
 EXTENDED_DIAG_SESSION = 0x03
@@ -113,6 +113,7 @@ def btn_eol_write_cb():
                 byte4 = int(eol_byte_4.get(), 16)
                 param.append(byte3)
                 param.append(byte4)
+            time.sleep(1)
             signal_handler.do_request("REQUEST_EOL_WRITE", param)
         else:
             print("Request EOL Write Failure")
@@ -384,6 +385,9 @@ except IOError:
 
 ask_dll = None
 
+
+
+
 # Main frame
 setting_frame = LabelFrame(main_window, text="Setting", bd=5, padx=5, pady=3)
 status_frame = Frame(main_window)
@@ -405,7 +409,7 @@ Radiobutton(setting_frame, text="General Seed Key", value="general_seedkey", var
 Radiobutton(setting_frame, text="Advanced Seed Key", value="advanced_seedkey", variable=security_access_setting,
             width=20).pack(side=LEFT, anchor="nw")
 OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="nw")
-temp_blank_label = Label(setting_frame, text=" a")
+temp_blank_label = Label(setting_frame, text="                  ")
 temp_blank_label.pack(side=RIGHT, anchor="e")
 
 # Version Frame
@@ -465,6 +469,9 @@ refresh_label.pack(side=TOP)
 
 refresh_btn = Button(version_info_frame, text="REFRESH", width=20, height=1, command=on_start)
 refresh_btn.pack(side=TOP)
+
+# IO Record1 Frame
+io_record1_frame = Frame(version_label_frame,)
 
 # IO Record1 Switch
 label = Label(version_label_frame, text="IO Record Switch : ")
