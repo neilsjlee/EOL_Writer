@@ -153,7 +153,6 @@ class HKMCSignalHandler:
             temp = result_c[i]
             if temp < 0:
                 temp = temp + 256
-            print(temp)
             result.append(temp)
             i = i + 1
 

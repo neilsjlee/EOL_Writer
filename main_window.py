@@ -224,6 +224,7 @@ def btn_config_read_cb():
 
 
 def on_start():
+    global ignore_status_update
     ignore_status_update = True
     time.sleep(0.2)
     signal_handler.start()
@@ -238,7 +239,7 @@ def on_start():
     signal_handler.do_request("REQUEST_MMCAN_VERSION", None)
     time.sleep(0.2)
     signal_handler.do_request("REQUEST_PART_NUMBER", None)
-    ignore_status_update = False
+    ignore_status_update = True
     # request_check_did_b000(connection)
     # request_read_odometer_km(connection)
 
@@ -271,9 +272,18 @@ def callback_dll_on_change(*args):
     ask_dll = ctypes.cdll.LoadLibrary(ask_client_dll.get())
     load_ask_dll()
 
+###!!
+def io_record1_switch_control(*args):
+    global ignore_status_update
+    print("******** IO Record1 Switch Flag: ", io_record1_switch_flag.get())
+    if io_record1_switch_flag.get() == 1:
+        ignore_status_update = False
+    elif io_record1_switch_flag.get() == 0:
+        ignore_status_update = True
+
 
 # Create the Main Window
-ignore_status_update = False
+ignore_status_update = True
 main_window = Tk()
 
 # Global Variables
@@ -292,6 +302,8 @@ visteon_eol_byte_6 = StringVar()
 visteon_eol_byte_7 = StringVar()
 visteon_eol_byte_8 = StringVar()
 
+io_record1_switch_flag = IntVar()
+io_record1_switch_flag.trace("w", io_record1_switch_control)
 fuel = StringVar()
 battery = StringVar()
 odo_km = IntVar()
@@ -373,7 +385,7 @@ except IOError:
 ask_dll = None
 
 # Main frame
-setting_frame = Frame(main_window)
+setting_frame = LabelFrame(main_window, text="Setting", bd=5, padx=5, pady=3)
 status_frame = Frame(main_window)
 left_frame = Frame(main_window)
 contents_frame = Frame(main_window)
@@ -386,13 +398,15 @@ status_frame.pack(side=LEFT, fill=Y, anchor="ne")
 
 # Setting Frame
 setting_label = Label(setting_frame, text="Security Settings: ")
-setting_label.pack(side=LEFT, anchor="w")
+setting_label.pack(side=LEFT, anchor="nw")
 
-Radiobutton(setting_frame, text="4 Byte Seedkey", value="general_seedkey", variable=security_access_setting,
+Radiobutton(setting_frame, text="General Seed Key", value="general_seedkey", variable=security_access_setting,
             width=20).pack(side=LEFT, anchor="nw")
-Radiobutton(setting_frame, text="8 Byte Seedkey", value="advanced_seedkey", variable=security_access_setting,
+Radiobutton(setting_frame, text="Advanced Seed Key", value="advanced_seedkey", variable=security_access_setting,
             width=20).pack(side=LEFT, anchor="nw")
 OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="nw")
+temp_blank_label = Label(setting_frame, text=" a")
+temp_blank_label.pack(side=RIGHT, anchor="e")
 
 # Version Frame
 version_label = Label(version_frame, text="Version: " + CURRENT_VERSION)
@@ -446,6 +460,18 @@ manuf_date_txt = Entry(version_info_frame, width=12, textvariable=manuf_date)
 manuf_date_txt.configure(state='readonly')
 manuf_date_txt.pack(side=TOP, pady=1)
 
+refresh_label = Label(version_label_frame, height=2, text=" ")
+refresh_label.pack(side=TOP)
+
+refresh_btn = Button(version_info_frame, text="REFRESH", width=20, height=1, command=on_start)
+refresh_btn.pack(side=TOP)
+
+# IO Record1 Switch
+label = Label(version_label_frame, text="IO Record Switch : ")
+label.pack(side=TOP)
+io_record_switch_btn = Checkbutton(version_info_frame, variable=io_record1_switch_flag, onvalue=1, offvalue=0)
+io_record_switch_btn.pack(side=TOP, pady=1)
+
 # Fuel
 label = Label(version_label_frame, text="Fuel(L): ")
 label.pack(side=TOP)
@@ -467,8 +493,6 @@ odo_km_txt = Entry(version_info_frame, width=12, textvariable=odo_km)
 odo_km_txt.configure(state='readonly')
 odo_km_txt.pack(side=TOP, pady=1)
 
-refresh_btn = Button(version_info_frame, text="REFRESH", width=20, command=on_start)
-refresh_btn.pack(side=TOP)
 
 # request_btn = Button(version_info_frame, text="REQUEST", width=20, command=lambda: signal_handler.do_request("REQUEST_IO_RECORD1"))
 # request_btn.pack(side=TOP)

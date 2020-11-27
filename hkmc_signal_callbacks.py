@@ -136,6 +136,8 @@ def request_key(base_signal, parameter):
     key_packet[1] = parameter[4] ^ 0xFF
     key_packet[2] = parameter[5] ^ 0xFF
     key_packet[3] = parameter[6] ^ 0xFF
+    if key_packet[3] + 0x0D > 0xFF:             # 1.0.0.1: If the fourth byte of the calculated key overflows after adding 0x0D,
+        key_packet[2] = key_packet[2] + 0x01    # then add '1' to the third byte of the key. (* ES94100-23 -> 5.2.4.2)
     key_packet[3] = key_packet[3] + 0x0D
     signal = convert_signal(base_signal['payload'])
     for i in range(3, 7):
@@ -154,6 +156,8 @@ def request_visteon_key(base_signal, parameter):
     key_packet[1] = parameter[4] ^ 0xFF
     key_packet[2] = parameter[5] ^ 0xFF
     key_packet[3] = parameter[6] ^ 0xFF
+    if key_packet[3] + 0x56 > 0xFF:             # 1.0.0.1: If the fourth byte of the calculated key overflows after adding 0x56,
+        key_packet[2] = key_packet[2] + 0x01    # then add '1' to the third byte of the key. (* TCS Spec -> 7 ECU security access -> 2. Security authentication (SID $27))
     key_packet[3] = (key_packet[3] + 0x56) & 0xFF
     signal = convert_signal(base_signal['payload'])
     for i in range(3, 7):
@@ -628,8 +632,6 @@ def request_ask_key(base_signal, parameter):
 
     # DLL
     calculated_ask_key = g_signal_handler.calculate_ask_key(received_ask_seed)
-    print("^^^^^^^^^^^^^^^^^^", calculated_ask_key)
-
     print("^^^ ASK KEY:  ", calculated_ask_key)
 
     for i in range(0, 4):
