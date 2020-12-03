@@ -350,7 +350,7 @@ test_input = StringVar()
 ui_param['test_input'] = test_input
 
 main_window.title("Visteon CAN Diagnostics Tool")
-main_window.geometry("850x300")
+main_window.geometry("850x325")
 
 signal_handler = HKMCSignalHandler("./signals.json", ui_param, print)
 
@@ -389,13 +389,13 @@ ask_dll = None
 
 
 # Main frame
-setting_frame = LabelFrame(main_window, text="Setting", bd=5, padx=5, pady=3)
+setting_frame = LabelFrame(main_window, text="Setting", bd=5, padx=5, pady=3, width=850)
 status_frame = Frame(main_window)
 left_frame = Frame(main_window)
 contents_frame = Frame(main_window)
 version_frame = Frame(main_window)
-setting_frame.pack(side=TOP, fill=Y, anchor="w")
-version_frame.pack(side=BOTTOM, fill=Y, anchor="e")
+setting_frame.pack(side=TOP, fill=BOTH, anchor="w")
+version_frame.pack(side=BOTTOM, anchor="e")
 left_frame.pack(side=LEFT, fill=Y)
 contents_frame.pack(side=LEFT, fill=Y)
 status_frame.pack(side=LEFT, fill=Y, anchor="ne")
@@ -408,13 +408,11 @@ Radiobutton(setting_frame, text="General Seed Key", value="general_seedkey", var
             width=20).pack(side=LEFT, anchor="nw")
 Radiobutton(setting_frame, text="Advanced Seed Key", value="advanced_seedkey", variable=security_access_setting,
             width=20).pack(side=LEFT, anchor="nw")
-OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="nw")
-temp_blank_label = Label(setting_frame, text="                  ")
-temp_blank_label.pack(side=RIGHT, anchor="e")
+OptionMenu(setting_frame, ask_client_dll, *ask_client_dll_choices).pack(side=LEFT, anchor="n")
 
 # Version Frame
 version_label = Label(version_frame, text="Version: " + CURRENT_VERSION)
-version_label.pack(side=LEFT, anchor="e")
+version_label.pack(side=TOP, anchor="e")
 
 # Internal SW Info
 version_label_frame = Frame(status_frame)
@@ -464,39 +462,44 @@ manuf_date_txt = Entry(version_info_frame, width=12, textvariable=manuf_date)
 manuf_date_txt.configure(state='readonly')
 manuf_date_txt.pack(side=TOP, pady=1)
 
-refresh_label = Label(version_label_frame, height=2, text=" ")
+refresh_label = Label(version_label_frame, height=1, text=" ", pady=5)
 refresh_label.pack(side=TOP)
 
 refresh_btn = Button(version_info_frame, text="REFRESH", width=20, height=1, command=on_start)
 refresh_btn.pack(side=TOP)
 
 # IO Record1 Frame
-io_record1_frame = Frame(version_label_frame,)
+io_record1_label_frame = Frame(version_label_frame)
+io_record1_label_frame.pack(side=TOP)
+
+io_record1_info_frame = Frame(version_info_frame)
+io_record1_info_frame.pack(side=TOP)
+
 
 # IO Record1 Switch
-label = Label(version_label_frame, text="IO Record Switch : ")
+label = Label(io_record1_label_frame, text="IO Record Switch : ")
 label.pack(side=TOP)
-io_record_switch_btn = Checkbutton(version_info_frame, variable=io_record1_switch_flag, onvalue=1, offvalue=0)
+io_record_switch_btn = Checkbutton(io_record1_info_frame, variable=io_record1_switch_flag, onvalue=1, offvalue=0)
 io_record_switch_btn.pack(side=TOP, pady=1)
 
 # Fuel
-label = Label(version_label_frame, text="Fuel(L): ")
+label = Label(io_record1_label_frame, text="Fuel(L): ")
 label.pack(side=TOP)
-fuel_txt = Entry(version_info_frame, width=12, textvariable=fuel)
+fuel_txt = Entry(io_record1_info_frame, width=12, textvariable=fuel)
 fuel_txt.configure(state='readonly')
 fuel_txt.pack(side=TOP, pady=1)
 
 # Voltage
-label = Label(version_label_frame, text="Batt(V): ")
+label = Label(io_record1_label_frame, text="Batt(V): ")
 label.pack(side=TOP)
-batt_txt = Entry(version_info_frame, width=12, textvariable=battery)
+batt_txt = Entry(io_record1_info_frame, width=12, textvariable=battery)
 batt_txt.configure(state='readonly')
 batt_txt.pack(side=TOP, pady=1)
 
 # ODO(KM)
-label = Label(version_label_frame, text="Odo(km): ")
+label = Label(io_record1_label_frame, text="Odo(km): ")
 label.pack(side=TOP)
-odo_km_txt = Entry(version_info_frame, width=12, textvariable=odo_km)
+odo_km_txt = Entry(io_record1_info_frame, width=12, textvariable=odo_km)
 odo_km_txt.configure(state='readonly')
 odo_km_txt.pack(side=TOP, pady=1)
 
